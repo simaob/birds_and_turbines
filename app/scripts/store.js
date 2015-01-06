@@ -1,0 +1,1 @@
+BirdsAndTurbines.ApplicationAdapter = DS.FixtureAdapter;
