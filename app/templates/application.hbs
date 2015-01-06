@@ -24,7 +24,12 @@
         <div>
           <div class="col-md-3">
             <div class="well sidebar-nav">
-              <h3>Sidebar</h3>
+              <h3>Birds</h3>
+              <ul>
+                {{#each bird in controller}}
+                  <li><i>{{bird.name}}</i> ({{bird.posX}},{{bird.posY}})</li>
+                {{/each}}
+              </ul>
             </div>
          </div>
          <div class="col-md-9">
