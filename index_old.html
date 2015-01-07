@@ -1,0 +1,248 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+      body {
+        background: #000;
+        scroll-:y none;
+        overflow:hidden;
+        font-family:arial;
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+    <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  </head>
+  <body>
+    <div><button id="toggleSim">Start</button></div>
+    <canvas id="myCanvas" width="800" height="500" style="border:1px solid #000000;"></canvas>
+    <script>
+
+      window.requestAnimFrame = (function(callback) {
+        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+        function(callback) {
+          window.setTimeout(callback, 1000 / 60);
+        };
+      })();
+
+      /**
+       * Pythagorean theorem
+       * @param fromX
+       * @param fromY
+       * @param toX
+       * @param toY
+       */
+      function findDistance(fromX, fromY, toX, toY){
+          var a = Math.abs(fromX - toX);
+          var b = Math.abs(fromY - toY);
+
+          return Math.sqrt((a * a) + (b * b));
+      }
+
+      function colidingWithTurbine(rect, canvas, direction) {
+        var unrotatedCircleX = canvas.width / 2;
+        var unrotatedCircleY = canvas.height / 2;
+
+        // Closest point in the rectangle to the center of circle rotated backwards(unrotated)
+        var closestX, closestY;
+
+        var xWillBe = rect.x;
+        var yWillBe = rect.y;
+
+        switch(direction) {
+          case -2:
+            xWillBe = rect.x-15;
+            break;
+          case -1:
+            yWillBe = rect.y+15;
+            break;
+          case 1:
+            yWillBe = rect.y-15;
+            break;
+          case 2:
+            xWillBe = rect.x+15;
+            break;
+        }
+        // Find the unrotated closest x point from center of unrotated circle
+        if (unrotatedCircleX  < xWillBe) {
+            closestX = xWillBe;
+        } else if (unrotatedCircleX  > xWillBe + rect.width) {
+            closestX = xWillBe + rect.width;
+        } else {
+            closestX = unrotatedCircleX ;
+        }
+
+        // Find the unrotated closest y point from center of unrotated circle
+        if (unrotatedCircleY < yWillBe) {
+            closestY = yWillBe;
+        } else if (unrotatedCircleY > yWillBe + rect.height) {
+            closestY = yWillBe + rect.height;
+        } else {
+            closestY = unrotatedCircleY;
+        }
+        // Determine collision
+        var collision = false;
+
+        var distance = findDistance(unrotatedCircleX , unrotatedCircleY, closestX, closestY);
+
+        if (distance < 20){
+            return true; // Collision
+        } else {
+            return false;
+        }
+      }
+
+      function drawTurbine(canvas, context) {
+        context.save();
+        var centerX = canvas.width / 2;
+        var centerY = canvas.height / 2;
+        var radius = 20;
+
+        context.beginPath();
+        context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+        context.fillStyle = 'green';
+        context.fill();
+        context.lineWidth = 5;
+        context.strokeStyle = '#003300';
+        context.stroke();
+        context.fillStyle= "grey";
+        context.fill();
+        context.restore();
+      }
+
+      function drawRectangle(myBird, context) {
+        context.save();
+        context.beginPath();
+        context.rect(myBird.x, myBird.y, myBird.width, myBird.height);
+        context.fillStyle = '#8ED6FF';
+        context.fill();
+        context.lineWidth = myBird.borderWidth;
+        context.strokeStyle = 'black';
+        context.stroke();
+        context.restore();
+      }
+
+      //direction
+      //1= to the left
+      //2= upwards
+      //3= to the right
+      //4= downards
+      function animate(birds, canvas, context, startTime) {
+        // update
+        var time = (new Date()).getTime() - startTime;
+
+        var movement = 5;
+
+        // clear
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        drawTurbine(canvas, context);
+
+        for(i= 0; i<NUMBER_BIRDS; i++){
+          if(number_runs % 10 == 0){
+            direction = directions[Math.floor((Math.random()*directions.length))];
+            birds[i].direction = direction;
+          } else {
+            direction = birds[i].direction;
+          }
+          if(colidingWithTurbine(birds[i], canvas, direction)){
+            birds[i].direction = -1*birds[i].direction;
+          } else {
+            switch(direction){
+              case -2:
+                if(birds[i].x - movement > 0) {
+                  birds[i].x = birds[i].x - movement;
+                } else {
+                  birds[i].x = 0;
+                }
+                break;
+              case -1:
+                if(birds[i].y+birds[i].height + birds[i].borderWidth/2 < canvas.height ) {
+                  birds[i].y = birds[i].y + movement;
+                } else {
+                  birds[i].y = canvas.height - birds[i].height - birds[i].borderWidth/2;
+                }
+                break;
+              case 1:
+                if(birds[i].y - movement > 0) {
+                  birds[i].y = birds[i].y - movement;
+                } else {
+                  birds[i].y = 0;
+                }
+                break;
+              case 2:
+                if(birds[i].x+birds[i].width + birds[i].borderWidth/2 < canvas.width ) {
+                  birds[i].x = birds[i].x + movement;
+                } else {
+                  birds[i].x = canvas.width - birds[i].width - birds[i].borderWidth/2;
+                }
+                break;
+            }
+          }
+
+          drawRectangle(birds[i], context);
+        }
+
+        // request new frame
+        number_runs += 1;
+        if(run === true) {
+          requestAnimFrame(function() {
+            animate(birds, canvas, context, startTime);
+          });
+        }
+      }
+      var run = false;
+      var NUMBER_BIRDS = 50;
+      var number_runs = 0;
+      // -2 WEST ; -1 SOUTH ; 1 NORTH; 2 EAST;
+      var directions  = [-2, -1, 1, 2]
+
+      $(function() {
+
+        $("#toggleSim").click(function(e) {
+          e.preventDefault();
+          if(run === true) {
+            run = false;
+            $(this).text("Start");
+          } else {
+            setTimeout(function() {
+              var startTime = (new Date()).getTime();
+              animate(birds, canvas, context, startTime);
+            }, 1000);
+            run = true;
+            number_runs = 0;
+            $(this).text("Stop");
+          }
+        });
+        var canvas = document.getElementById('myCanvas');
+        var context = canvas.getContext('2d');
+
+        drawTurbine(canvas, context);
+
+        var birds = [NUMBER_BIRDS]
+        for(i= 0; i < NUMBER_BIRDS; i++) {
+          birds[i] =
+            {
+              x: 0,
+              y: Math.floor((Math.random() * 400) + 0),
+              direction: directions[Math.floor((Math.random()*directions.length))],
+              width: 15,
+              height: 10,
+              borderWidth: 1
+            }
+          drawRectangle(birds[i], context);
+        }
+
+
+        // wait one second before starting animation
+        if(run === true) {
+          setTimeout(function() {
+            var startTime = (new Date()).getTime();
+            animate(birds, canvas, context, startTime);
+          }, 1000);
+        }
+      });
+
+    </script>
+  </body>
+</html>
