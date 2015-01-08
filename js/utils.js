@@ -5,7 +5,7 @@
  * @param toX
  * @param toY
  */
-function findDistance(fromX, fromY, toX, toY){
+function findDistance(fromX, fromY, toX, toY) {
     var a = Math.abs(fromX - toX);
     var b = Math.abs(fromY - toY);
 

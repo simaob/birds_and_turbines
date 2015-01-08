@@ -43,7 +43,7 @@ function animate(birds, movement, canvas, context) {
   drawTurbine(canvas, context);
   lucky_dip = Math.floor(Math.random()*9)+1;
   number_stopped = 0;
-  for(i= 0; i<birds.length; i++){
+  for(i= 0; i<birds.length; i++) {
     distance = colidingWithTurbineIn(birds[i], canvas);
     switch(true) {
       case distance > 70:
@@ -85,7 +85,7 @@ function animate(birds, movement, canvas, context) {
 
     drawBird(birds[i], context);
   }
-  if(number_runs > 20){
+  if(number_runs > 20) {
     number_runs = 0;
     vertical_dir = -vertical_dir;
   } else {
@@ -103,18 +103,17 @@ function animate(birds, movement, canvas, context) {
 function generateBirds(number, context) {
   var birds = [];
   for(i= 0; i < number; i++) {
-    birds[i] =
-      {
-        x: 0,
-        y: Math.floor((Math.random() * 490) + 0),//random height
-        smoother: ((Math.random()*(1-0.5))+0.5)*[-1, 1][Math.floor(Math.random()*2)],//random vertical smoother
-        individual_speed: (Math.random()*(1-0.5))+0.5, //individual speed. between 0.5-1
-        avoided: false,
-        avoidance_counter: 0,
-        width: 15,
-        height: 10,
-        borderWidth: 1
-      }
+    birds[i] = {
+      x: 0,
+      y: Math.floor((Math.random() * 490) + 0),//random height
+      smoother: ((Math.random()*(1-0.5))+0.5)*[-1, 1][Math.floor(Math.random()*2)],//random vertical smoother
+      individual_speed: (Math.random()*(1-0.5))+0.5, //individual speed. between 0.5-1
+      avoided: false,
+      avoidance_counter: 0,
+      width: 15,
+      height: 10,
+      borderWidth: 1
+    };
     drawBird(birds[i], context);
   }
   return birds;
